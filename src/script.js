@@ -66,6 +66,34 @@ controls.enableDamping = true
 
 const terrain = {}
 
+// Texture
+terrain.texture = {}
+terrain.texture.width = 32
+terrain.texture.height = 128
+terrain.texture.canvas = document.createElement('canvas')
+terrain.texture.canvas.width = terrain.texture.width
+terrain.texture.canvas.height = terrain.texture.height
+terrain.texture.canvas.style.position = 'fixed'
+terrain.texture.canvas.style.top = 0
+terrain.texture.canvas.style.left = 0
+terrain.texture.canvas.style.zIndex = 1
+document.body.append(terrain.texture.canvas)
+
+terrain.texture.context = terrain.texture.canvas.getContext('2d')
+
+terrain.texture.context.fillStyle = 'red'
+terrain.texture.context.fillRect(0, Math.round(terrain.texture.height * 0), terrain.texture.width, 4)
+
+terrain.texture.context.fillStyle = 'green'
+terrain.texture.context.fillRect(0, Math.round(terrain.texture.height * 0.4), terrain.texture.width, 4)
+
+terrain.texture.context.fillStyle = 'blue'
+terrain.texture.context.fillRect(0, Math.round(terrain.texture.height * 0.9), terrain.texture.width, 4)
+
+terrain.texture.instance = new THREE.CanvasTexture(terrain.texture.canvas)
+terrain.texture.instance.wrapS = THREE.RepeatWrapping
+terrain.texture.instance.wrapT = THREE.RepeatWrapping
+
 // Geometry
 terrain.geometry = new THREE.PlaneGeometry(1, 1, 600, 600)
 terrain.geometry.rotateX(-Math.PI * 0.5)
@@ -78,16 +106,20 @@ terrain.material = new THREE.ShaderMaterial({
   blending: THREE.AdditiveBlending,
   side: THREE.DoubleSide,
   uniforms: {
-    uElevation: { value: 1 },
+    uTexture: { value: terrain.texture.instance },
+    uElevation: { value: 2 },
   },
 })
 
 // Debug
 debug.Register({
   object: terrain.material.uniforms.uElevation,
+  label: 'uElevation',
   property: 'value',
-  label: '',
   type: 'range',
+  min: 0,
+  max: 5,
+  step: 0.001,
 })
 
 // Mesh
@@ -109,11 +141,11 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 // Debug
 const guiDummy = {}
-guiDummy.clearColor = '#111111'
+guiDummy.clearColor = '#043136'
 debug.Register({
   object: guiDummy,
-  property: 'clearColor',
   label: 'clearColor',
+  property: 'clearColor',
   type: 'color',
   format: 'hex',
   onChange: () => {
