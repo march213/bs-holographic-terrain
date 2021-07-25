@@ -75,6 +75,19 @@ terrain.material = new THREE.ShaderMaterial({
   vertexShader: terrainVertex,
   fragmentShader: terrainFragment,
   transparent: true,
+  blending: THREE.AdditiveBlending,
+  side: THREE.DoubleSide,
+  uniforms: {
+    uElevation: { value: 1 },
+  },
+})
+
+// Debug
+debug.Register({
+  object: terrain.material.uniforms.uElevation,
+  property: 'value',
+  label: '',
+  type: 'range',
 })
 
 // Mesh
@@ -93,6 +106,20 @@ renderer.setClearColor(0x111111, 1)
 renderer.outputEncoding = THREE.sRGBEncoding
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+// Debug
+const guiDummy = {}
+guiDummy.clearColor = '#111111'
+debug.Register({
+  object: guiDummy,
+  property: 'clearColor',
+  label: 'clearColor',
+  type: 'color',
+  format: 'hex',
+  onChange: () => {
+    renderer.setClearColor(guiDummy.clearColor, 1)
+  },
+})
 
 /**
  * Animate
