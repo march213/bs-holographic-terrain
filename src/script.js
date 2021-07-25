@@ -68,6 +68,9 @@ const terrain = {}
 
 // Texture
 terrain.texture = {}
+terrain.texture.linesCount = 5
+terrain.texture.bigLineWidth = 0.04
+terrain.texture.smallLineWidth = 0.01
 terrain.texture.width = 32
 terrain.texture.height = 128
 terrain.texture.canvas = document.createElement('canvas')
@@ -81,21 +84,57 @@ document.body.append(terrain.texture.canvas)
 
 terrain.texture.context = terrain.texture.canvas.getContext('2d')
 
-terrain.texture.context.fillStyle = 'red'
-terrain.texture.context.fillRect(0, Math.round(terrain.texture.height * 0), terrain.texture.width, 4)
-
-terrain.texture.context.fillStyle = 'green'
-terrain.texture.context.fillRect(0, Math.round(terrain.texture.height * 0.4), terrain.texture.width, 4)
-
-terrain.texture.context.fillStyle = 'blue'
-terrain.texture.context.fillRect(0, Math.round(terrain.texture.height * 0.9), terrain.texture.width, 4)
-
 terrain.texture.instance = new THREE.CanvasTexture(terrain.texture.canvas)
 terrain.texture.instance.wrapS = THREE.RepeatWrapping
 terrain.texture.instance.wrapT = THREE.RepeatWrapping
+terrain.texture.instance.magFilter = THREE.NearestFilter
+
+terrain.texture.update = () => {
+  terrain.texture.context.clearRect(0, 0, terrain.texture.width, terrain.texture.height)
+
+  // Big line
+  const actualBigLineWidth = Math.round(terrain.texture.height * terrain.texture.bigLineWidth)
+  terrain.texture.context.globalAlpha = 1
+  terrain.texture.context.fillStyle = '#ffffff'
+  terrain.texture.context.fillRect(0, 0, terrain.texture.width, actualBigLineWidth)
+
+  // Small lines
+  const actualSmallLineWidth = Math.round(terrain.texture.height * terrain.texture.smallLineWidth)
+  const smallLinesCount = terrain.texture.linesCount - 1
+
+  for (let i = 0; i < smallLinesCount; i++) {
+    terrain.texture.context.globalAlpha = 0.5
+    terrain.texture.context.fillRect(
+      0,
+      actualBigLineWidth +
+        Math.round((terrain.texture.height - actualBigLineWidth) / terrain.texture.linesCount) * (i + 1),
+      terrain.texture.width,
+      actualSmallLineWidth,
+    )
+  }
+
+  // Update texture instance
+  terrain.texture.instance.needsUpdate = true
+}
+
+terrain.texture.update()
+
+// Debug
+debug.Register({
+  object: terrain.texture,
+  label: 'linesCount',
+  property: 'linesCount',
+  type: 'range',
+  min: 1,
+  max: 10,
+  step: 1,
+  onChange: () => {
+    terrain.texture.update()
+  },
+})
 
 // Geometry
-terrain.geometry = new THREE.PlaneGeometry(1, 1, 600, 600)
+terrain.geometry = new THREE.PlaneGeometry(1, 1, 800, 800)
 terrain.geometry.rotateX(-Math.PI * 0.5)
 
 // Material
