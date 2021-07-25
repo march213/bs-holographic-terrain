@@ -204,6 +204,8 @@ terrain.material = new THREE.ShaderMaterial({
   uniforms: {
     uTexture: { value: terrain.texture.instance },
     uElevation: { value: 2 },
+    uTextureFrequency: { value: 10 },
+    uTime: { value: 0 },
   },
 })
 
@@ -223,6 +225,16 @@ debug.Register({
   min: 0,
   max: 5,
   step: 0.001,
+})
+debug.Register({
+  folder: 'terrainMaterial',
+  object: terrain.material.uniforms.uTextureFrequency,
+  label: 'uTextureFrequency',
+  property: 'value',
+  type: 'range',
+  min: 0.1,
+  max: 50,
+  step: 0.1,
 })
 
 // Mesh
@@ -341,6 +353,9 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime()
   const deltaTime = elapsedTime - lastElapsedTime
   lastElapsedTime = elapsedTime
+
+  // Update terrain
+  terrain.material.uniforms.uTime.value = elapsedTime
 
   // Update controls
   controls.update()
