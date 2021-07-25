@@ -74,6 +74,7 @@ terrain.geometry.rotateX(-Math.PI * 0.5)
 terrain.material = new THREE.ShaderMaterial({
   vertexShader: terrainVertex,
   fragmentShader: terrainFragment,
+  transparent: true,
 })
 
 // Mesh

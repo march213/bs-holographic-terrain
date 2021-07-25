@@ -83,16 +83,16 @@ varying float vElevation;
 
 float getElevation(vec3 _position) {
   float elevation = 0.0;
-  float iterations = 4.0;
-  elevation += -abs(cnoise(vec3(_position.xz * 1.0, 0.0)));
+  // elevation += -abs(cnoise(vec3(_position.xz * 1.0, 0.0)));
 
-  // for(float i = 0.0; i < iterations; i++) {
-  //   float frequency = i;
-  //   float amplitude = (iterations - i) / iterations;
-  //   float iterationElevation = elevation = cnoise(vec3(_position.xz * frequency, 0.0));
-  //   iterationElevation *= amplitude;
-  //   elevation += iterationElevation;
-  // }
+  // Details
+  // elevation += cnoise(vec3(_position.xz * 0.3, 0.0)) * 0.5;
+
+  // Smaller details
+  elevation += cnoise(vec3((_position.xz + 123.0) * 1.0, 0.0)) * 0.2;
+
+  elevation *= 2.0;
+
   return elevation;
 }
 
