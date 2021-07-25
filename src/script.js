@@ -78,6 +78,11 @@ controls.enableDamping = true
  */
 
 const terrain = {}
+debug.Register({
+  type: 'folder',
+  label: 'terrain',
+  open: false,
+})
 
 // Texture
 terrain.texture = {}
@@ -135,6 +140,13 @@ terrain.texture.update()
 
 // Debug
 debug.Register({
+  folder: 'terrain',
+  type: 'folder',
+  label: 'terrainTexture',
+  open: false,
+})
+debug.Register({
+  folder: 'terrainTexture',
   object: terrain.texture,
   label: 'linesCount',
   property: 'linesCount',
@@ -145,6 +157,7 @@ debug.Register({
   onChange: terrain.texture.update,
 })
 debug.Register({
+  folder: 'terrainTexture',
   object: terrain.texture,
   label: 'bigLineWidth',
   property: 'bigLineWidth',
@@ -155,6 +168,7 @@ debug.Register({
   onChange: terrain.texture.update,
 })
 debug.Register({
+  folder: 'terrainTexture',
   object: terrain.texture,
   label: 'smallLineWidth',
   property: 'smallLineWidth',
@@ -165,6 +179,7 @@ debug.Register({
   onChange: terrain.texture.update,
 })
 debug.Register({
+  folder: 'terrainTexture',
   object: terrain.texture,
   label: 'smallLineAlpha',
   property: 'smallLineAlpha',
@@ -194,6 +209,13 @@ terrain.material = new THREE.ShaderMaterial({
 
 // Debug
 debug.Register({
+  folder: 'terrain',
+  type: 'folder',
+  label: 'terrainMaterial',
+  open: false,
+})
+debug.Register({
+  folder: 'terrainMaterial',
   object: terrain.material.uniforms.uElevation,
   label: 'uElevation',
   property: 'value',
@@ -221,6 +243,12 @@ const guiDummy = {
   clearColor: '#043136',
 }
 debug.Register({
+  type: 'folder',
+  label: 'render',
+  open: false,
+})
+debug.Register({
+  folder: 'render',
   object: guiDummy,
   label: 'clearColor',
   property: 'clearColor',
@@ -263,7 +291,7 @@ effectComposer.addPass(bokehPass)
 debug.Register({
   type: 'folder',
   label: 'bokehPass',
-  open: true,
+  open: false,
 })
 debug.Register({
   folder: 'bokehPass',
@@ -274,6 +302,13 @@ debug.Register({
   min: 0,
   max: 10,
   step: 0.01,
+})
+debug.Register({
+  folder: 'bokehPass',
+  object: bokehPass,
+  label: 'enabled',
+  property: 'enabled',
+  type: 'checkbox',
 })
 debug.Register({
   folder: 'bokehPass',
