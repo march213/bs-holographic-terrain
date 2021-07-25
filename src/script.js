@@ -275,6 +275,26 @@ debug.Register({
   max: 10,
   step: 0.01,
 })
+debug.Register({
+  folder: 'bokehPass',
+  object: bokehPass.materialBokeh.uniforms.aperture,
+  label: 'aperture',
+  property: 'value',
+  type: 'range',
+  min: 0.0002,
+  max: 0.1,
+  step: 0.0001,
+})
+debug.Register({
+  folder: 'bokehPass',
+  object: bokehPass.materialBokeh.uniforms.maxblur,
+  label: 'maxblur',
+  property: 'value',
+  type: 'range',
+  min: 0,
+  max: 0.02,
+  step: 0.0001,
+})
 
 /**
  * Animate
