@@ -1,22 +1,22 @@
-import './style.css'
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js'
-import guify from 'guify'
+import './style.css';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
+import guify from 'guify';
 
-import terrainVertex from './shaders/terrain/vertex.glsl'
-import terrainFragment from './shaders/terrain/fragment.glsl'
+import terrainVertex from './shaders/terrain/vertex.glsl';
+import terrainFragment from './shaders/terrain/fragment.glsl';
 
 /**
  * Base
  */
 // Canvas
-const canvas = document.querySelector('canvas.webgl')
+const canvas = document.querySelector('canvas.webgl');
 
 // Scene
-const scene = new THREE.Scene()
+const scene = new THREE.Scene();
 
 // Debug
 
@@ -25,7 +25,7 @@ const debug = new guify({
   align: 'right',
   theme: 'dark',
   barMode: 'none',
-})
+});
 
 /**
  * Sizes
@@ -34,109 +34,109 @@ const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
   pixelRatio: Math.min(window.devicePixelRatio, 2),
-}
+};
 
 window.addEventListener('resize', () => {
   // Update sizes
-  sizes.width = window.innerWidth
-  sizes.height = window.innerHeight
-  sizes.pixelRatio = Math.min(window.devicePixelRatio, 2)
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+  sizes.pixelRatio = Math.min(window.devicePixelRatio, 2);
 
   // Update camera
-  camera.aspect = sizes.width / sizes.height
-  camera.updateProjectionMatrix()
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
 
   // Update renderer
-  renderer.setSize(sizes.width, sizes.height)
-  renderer.setPixelRatio(sizes.pixelRatio)
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(sizes.pixelRatio);
 
   // Update effect composer
-  effectComposer.setSize(sizes.width, sizes.height)
-  effectComposer.setPixelRatio(sizes.pixelRatio)
+  effectComposer.setSize(sizes.width, sizes.height);
+  effectComposer.setPixelRatio(sizes.pixelRatio);
 
   // Update passes
-  bokehPass.renderTargetDepth.width = sizes.width * sizes.pixelRatio
-  bokehPass.renderTargetDepth.height = sizes.height * sizes.pixelRatio
-})
+  bokehPass.renderTargetDepth.width = sizes.width * sizes.pixelRatio;
+  bokehPass.renderTargetDepth.height = sizes.height * sizes.pixelRatio;
+});
 
 /**
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 1
-camera.position.y = 1
-camera.position.z = 1
-scene.add(camera)
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
+camera.position.x = 1;
+camera.position.y = 1;
+camera.position.z = 1;
+scene.add(camera);
 
 // Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
 
 /**
  * Terrain
  */
 
-const terrain = {}
+const terrain = {};
 debug.Register({
   type: 'folder',
   label: 'terrain',
   open: false,
-})
+});
 
 // Texture
-terrain.texture = {}
-terrain.texture.linesCount = 5
-terrain.texture.bigLineWidth = 0.04
-terrain.texture.smallLineWidth = 0.01
-terrain.texture.smallLineAlpha = 0.5
-terrain.texture.width = 32
-terrain.texture.height = 128
-terrain.texture.canvas = document.createElement('canvas')
-terrain.texture.canvas.width = terrain.texture.width
-terrain.texture.canvas.height = terrain.texture.height
-terrain.texture.canvas.style.position = 'fixed'
-terrain.texture.canvas.style.top = 0
-terrain.texture.canvas.style.left = 0
-terrain.texture.canvas.style.zIndex = 1
-document.body.append(terrain.texture.canvas)
+terrain.texture = {};
+terrain.texture.linesCount = 5;
+terrain.texture.bigLineWidth = 0.04;
+terrain.texture.smallLineWidth = 0.01;
+terrain.texture.smallLineAlpha = 0.5;
+terrain.texture.width = 32;
+terrain.texture.height = 128;
+terrain.texture.canvas = document.createElement('canvas');
+terrain.texture.canvas.width = terrain.texture.width;
+terrain.texture.canvas.height = terrain.texture.height;
+terrain.texture.canvas.style.position = 'fixed';
+terrain.texture.canvas.style.top = 0;
+terrain.texture.canvas.style.left = 0;
+terrain.texture.canvas.style.zIndex = 1;
+document.body.append(terrain.texture.canvas);
 
-terrain.texture.context = terrain.texture.canvas.getContext('2d')
+terrain.texture.context = terrain.texture.canvas.getContext('2d');
 
-terrain.texture.instance = new THREE.CanvasTexture(terrain.texture.canvas)
-terrain.texture.instance.wrapS = THREE.RepeatWrapping
-terrain.texture.instance.wrapT = THREE.RepeatWrapping
-terrain.texture.instance.magFilter = THREE.NearestFilter
+terrain.texture.instance = new THREE.CanvasTexture(terrain.texture.canvas);
+terrain.texture.instance.wrapS = THREE.RepeatWrapping;
+terrain.texture.instance.wrapT = THREE.RepeatWrapping;
+terrain.texture.instance.magFilter = THREE.NearestFilter;
 
 terrain.texture.update = () => {
-  terrain.texture.context.clearRect(0, 0, terrain.texture.width, terrain.texture.height)
+  terrain.texture.context.clearRect(0, 0, terrain.texture.width, terrain.texture.height);
 
   // Big line
-  const actualBigLineWidth = Math.round(terrain.texture.height * terrain.texture.bigLineWidth)
-  terrain.texture.context.globalAlpha = 1
-  terrain.texture.context.fillStyle = '#ffffff'
-  terrain.texture.context.fillRect(0, 0, terrain.texture.width, actualBigLineWidth)
+  const actualBigLineWidth = Math.round(terrain.texture.height * terrain.texture.bigLineWidth);
+  terrain.texture.context.globalAlpha = 1;
+  terrain.texture.context.fillStyle = '#ffffff';
+  terrain.texture.context.fillRect(0, 0, terrain.texture.width, actualBigLineWidth);
 
   // Small lines
-  const actualSmallLineWidth = Math.round(terrain.texture.height * terrain.texture.smallLineWidth)
-  const smallLinesCount = terrain.texture.linesCount - 1
+  const actualSmallLineWidth = Math.round(terrain.texture.height * terrain.texture.smallLineWidth);
+  const smallLinesCount = terrain.texture.linesCount - 1;
 
   for (let i = 0; i < smallLinesCount; i++) {
-    terrain.texture.context.globalAlpha = terrain.texture.smallLineAlpha
+    terrain.texture.context.globalAlpha = terrain.texture.smallLineAlpha;
     terrain.texture.context.fillRect(
       0,
       actualBigLineWidth +
         Math.round((terrain.texture.height - actualBigLineWidth) / terrain.texture.linesCount) * (i + 1),
       terrain.texture.width,
       actualSmallLineWidth,
-    )
+    );
   }
 
   // Update texture instance
-  terrain.texture.instance.needsUpdate = true
-}
+  terrain.texture.instance.needsUpdate = true;
+};
 
-terrain.texture.update()
+terrain.texture.update();
 
 // Debug
 debug.Register({
@@ -144,7 +144,7 @@ debug.Register({
   type: 'folder',
   label: 'terrainTexture',
   open: false,
-})
+});
 debug.Register({
   folder: 'terrainTexture',
   object: terrain.texture,
@@ -155,7 +155,7 @@ debug.Register({
   max: 10,
   step: 1,
   onChange: terrain.texture.update,
-})
+});
 debug.Register({
   folder: 'terrainTexture',
   object: terrain.texture,
@@ -166,7 +166,7 @@ debug.Register({
   max: 0.1,
   step: 0.0001,
   onChange: terrain.texture.update,
-})
+});
 debug.Register({
   folder: 'terrainTexture',
   object: terrain.texture,
@@ -177,7 +177,7 @@ debug.Register({
   max: 0.04,
   step: 0.0001,
   onChange: terrain.texture.update,
-})
+});
 debug.Register({
   folder: 'terrainTexture',
   object: terrain.texture,
@@ -188,11 +188,11 @@ debug.Register({
   max: 1,
   step: 0.0001,
   onChange: terrain.texture.update,
-})
+});
 
 // Geometry
-terrain.geometry = new THREE.PlaneGeometry(1, 1, 800, 800)
-terrain.geometry.rotateX(-Math.PI * 0.5)
+terrain.geometry = new THREE.PlaneGeometry(1, 1, 800, 800);
+terrain.geometry.rotateX(-Math.PI * 0.5);
 
 // Material
 terrain.material = new THREE.ShaderMaterial({
@@ -207,7 +207,7 @@ terrain.material = new THREE.ShaderMaterial({
     uTextureFrequency: { value: 10 },
     uTime: { value: 0 },
   },
-})
+});
 
 // Debug
 debug.Register({
@@ -215,7 +215,7 @@ debug.Register({
   type: 'folder',
   label: 'terrainMaterial',
   open: false,
-})
+});
 debug.Register({
   folder: 'terrainMaterial',
   object: terrain.material.uniforms.uElevation,
@@ -225,7 +225,7 @@ debug.Register({
   min: 0,
   max: 5,
   step: 0.001,
-})
+});
 debug.Register({
   folder: 'terrainMaterial',
   object: terrain.material.uniforms.uTextureFrequency,
@@ -235,12 +235,12 @@ debug.Register({
   min: 0.1,
   max: 50,
   step: 0.1,
-})
+});
 
 // Mesh
-terrain.mesh = new THREE.Mesh(terrain.geometry, terrain.material)
-terrain.mesh.scale.set(10, 10, 10)
-scene.add(terrain.mesh)
+terrain.mesh = new THREE.Mesh(terrain.geometry, terrain.material);
+terrain.mesh.scale.set(10, 10, 10);
+scene.add(terrain.mesh);
 
 /**
  * Renderer
@@ -248,17 +248,17 @@ scene.add(terrain.mesh)
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
   antialias: true,
-})
-renderer.setClearColor(0x111111, 1)
+});
+renderer.setClearColor(0x111111, 1);
 
 const guiDummy = {
   clearColor: '#043136',
-}
+};
 debug.Register({
   type: 'folder',
   label: 'render',
   open: false,
-})
+});
 debug.Register({
   folder: 'render',
   object: guiDummy,
@@ -267,13 +267,13 @@ debug.Register({
   type: 'color',
   format: 'hex',
   onChange: () => {
-    renderer.setClearColor(guiDummy.clearColor, 1)
+    renderer.setClearColor(guiDummy.clearColor, 1);
   },
-})
+});
 
-renderer.outputEncoding = THREE.sRGBEncoding
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(sizes.pixelRatio)
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setSize(sizes.width, sizes.height);
+renderer.setPixelRatio(sizes.pixelRatio);
 
 // Effect Composer
 const renderTarget = new THREE.WebGLMultisampleRenderTarget(800, 600, {
@@ -281,14 +281,14 @@ const renderTarget = new THREE.WebGLMultisampleRenderTarget(800, 600, {
   magFilter: THREE.LinearFilter,
   format: THREE.RGBAFormat,
   encoding: THREE.sRGBEncoding,
-})
-const effectComposer = new EffectComposer(renderer)
-effectComposer.setSize(sizes.width, sizes.height)
-effectComposer.setPixelRatio(sizes.pixelRatio)
+});
+const effectComposer = new EffectComposer(renderer);
+effectComposer.setSize(sizes.width, sizes.height);
+effectComposer.setPixelRatio(sizes.pixelRatio);
 
 // Render pass
-const renderPass = new RenderPass(scene, camera)
-effectComposer.addPass(renderPass)
+const renderPass = new RenderPass(scene, camera);
+effectComposer.addPass(renderPass);
 
 // Bokeh pass
 const bokehPass = new BokehPass(scene, camera, {
@@ -297,14 +297,14 @@ const bokehPass = new BokehPass(scene, camera, {
   maxblur: 0.01,
   width: sizes.width * sizes.pixelRatio,
   height: sizes.height * sizes.pixelRatio,
-})
-effectComposer.addPass(bokehPass)
+});
+effectComposer.addPass(bokehPass);
 
 debug.Register({
   type: 'folder',
   label: 'bokehPass',
   open: false,
-})
+});
 debug.Register({
   folder: 'bokehPass',
   object: bokehPass.materialBokeh.uniforms.focus,
@@ -314,14 +314,14 @@ debug.Register({
   min: 0,
   max: 10,
   step: 0.01,
-})
+});
 debug.Register({
   folder: 'bokehPass',
   object: bokehPass,
   label: 'enabled',
   property: 'enabled',
   type: 'checkbox',
-})
+});
 debug.Register({
   folder: 'bokehPass',
   object: bokehPass.materialBokeh.uniforms.aperture,
@@ -331,7 +331,7 @@ debug.Register({
   min: 0.0002,
   max: 0.1,
   step: 0.0001,
-})
+});
 debug.Register({
   folder: 'bokehPass',
   object: bokehPass.materialBokeh.uniforms.maxblur,
@@ -341,31 +341,31 @@ debug.Register({
   min: 0,
   max: 0.02,
   step: 0.0001,
-})
+});
 
 /**
  * Animate
  */
-const clock = new THREE.Clock()
-let lastElapsedTime = 0
+const clock = new THREE.Clock();
+let lastElapsedTime = 0;
 
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime()
-  const deltaTime = elapsedTime - lastElapsedTime
-  lastElapsedTime = elapsedTime
+  const elapsedTime = clock.getElapsedTime();
+  const deltaTime = elapsedTime - lastElapsedTime;
+  lastElapsedTime = elapsedTime;
 
   // Update terrain
-  terrain.material.uniforms.uTime.value = elapsedTime
+  terrain.material.uniforms.uTime.value = elapsedTime;
 
   // Update controls
-  controls.update()
+  controls.update();
 
   // Render
   // renderer.render(scene, camera)
-  effectComposer.render()
+  effectComposer.render();
 
   // Call tick again on the next frame
-  window.requestAnimationFrame(tick)
-}
+  window.requestAnimationFrame(tick);
+};
 
-tick()
+tick();
